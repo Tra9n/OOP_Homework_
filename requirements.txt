@@ -1,0 +1,9 @@
+pandas
+requests
+python-dotenv
+pytest
+pytest-cov
+openpyxl
+freezegun
+pandas-stubs
+types-requests
