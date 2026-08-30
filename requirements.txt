@@ -7,3 +7,7 @@ openpyxl
 freezegun
 pandas-stubs
 types-requests
+flake8
+black
+mypy
+isort
