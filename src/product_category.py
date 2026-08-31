@@ -1,14 +1,33 @@
-class Product:
+from abc import ABC, abstractmethod
+
+
+class BaseProduct(ABC):
+    @abstractmethod
+    def __init__(self, name, description, price, quantity):
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+        self.name = name
+        self.description = description
+        self.quantity = quantity
+
+
+class PrintMixin:
     name = str
     description = str
     price = float
     quantity = int
 
+    def __init__(self):
+        super().__init__()
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.name}, {self.description}, {self.price}, {self.quantity})"
+
+
+class Product(BaseProduct, PrintMixin):
     def __init__(self, name, description, price, quantity):
-        self.name = name
+        super().__init__(name, description, price, quantity)
         self.__price = price
-        self.quantity = quantity
-        self.description = description
 
     @classmethod
     def new_product(cls, product_info):
