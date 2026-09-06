@@ -97,6 +97,7 @@ class Category:
         except ZeroDivisionError:
             return 0
 
+
 class Smartphone(Product):
     def __init__(
         self, name, description, price, quantity, efficiency, model, memory, color
@@ -140,7 +141,9 @@ def test_middle_price_empty_category():
 
 
 def test_middle_price_with_inherited_products():
-    smartphone = Smartphone("Samsung", "Смартфон", 800.0, 3, "высокая", "S23", "128GB", "черный")
+    smartphone = Smartphone(
+        "Samsung", "Смартфон", 800.0, 3, "высокая", "S23", "128GB", "черный"
+    )
     grass = LawnGrass("Трава", "Газонная", 50.0, 100, "Россия", "14 дней", "зеленый")
     category = Category("Смесь", "Разные товары", [smartphone, grass])
     expected = (800.0 + 50.0) / 2
