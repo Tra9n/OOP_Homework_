@@ -1,9 +1,10 @@
 import sys
 from io import StringIO
+from unittest.mock import Mock
 
 import pytest
 
-from src.product_category import Category, LawnGrass, Product, Smartphone
+from src.product_category import BaseProduct, Category, LawnGrass, Product, Smartphone
 
 
 def test_products_category(product_category):
@@ -215,3 +216,53 @@ def test_product_inheritance_in_category():
     category.add_product(grass)
 
     assert len(category._Category__products) == 2
+
+
+def test_base_product_abstract():
+    with pytest.raises(TypeError):
+        BaseProduct("test", "desc", 100, 5)
+
+
+def test_product_zero_quantity_raises_value_error():
+    with pytest.raises(
+        ValueError, match="Товар с нулевым количеством не может быть добавлен"
+    ):
+        Product("Test", "Description", 100.0, 0)
+
+
+def test_product_repr():
+    product = Product("Ноутбук", "Игровой", 1000.0, 5)
+    assert repr(product) == "Product(Ноутбук, Игровой, 1000.0, 5)"
+
+
+def test_smartphone_repr():
+    smartphone = Smartphone(
+        "iPhone", "Смартфон", 800.0, 2, "A15", "13", "128GB", "черный"
+    )
+    assert repr(smartphone) == "Smartphone(iPhone, Смартфон, 800.0, 2)"
+
+
+def test_lawn_grass_repr():
+    grass = LawnGrass("Трава", "Газонная", 50.0, 100, "Россия", "14 дней", "Зеленый")
+    assert repr(grass) == "LawnGrass(Трава, Газонная, 50.0, 100)"
+
+
+def test_add_different_types_raises_type_error():
+    product = Product("Ноутбук", "Игровой", 1000.0, 2)
+    smartphone = Smartphone(
+        "iPhone", "Смартфон", 800.0, 3, "A15", "13", "128GB", "черный"
+    )
+    with pytest.raises(TypeError, match="Нельзя добавлять товары разных категорий."):
+        product + smartphone
+
+
+def test_add_smartphone_smartphone():
+    s1 = Smartphone("S1", "", 100.0, 1, "eff", "mod", "mem", "col")
+    s2 = Smartphone("S2", "", 200.0, 2, "eff2", "mod2", "mem2", "col2")
+    assert s1 + s2 == 100.0 * 1 + 200.0 * 2 == 500.0
+
+
+def test_add_lawn_grass_lawn_grass():
+    g1 = LawnGrass("G1", "", 10.0, 5, "RU", "10", "green")
+    g2 = LawnGrass("G2", "", 20.0, 3, "RU", "12", "blue")
+    assert g1 + g2 == 10.0 * 5 + 20.0 * 3 == 110.0

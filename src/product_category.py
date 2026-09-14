@@ -1,14 +1,33 @@
-class Product:
+from abc import ABC, abstractmethod
+
+
+class BaseProduct(ABC):
+    @abstractmethod
+    def __init__(self, name, description, price, quantity):
+        if quantity == 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+        self.name = name
+        self.description = description
+        self.quantity = quantity
+
+
+class PrintMixin:
     name = str
     description = str
     price = float
     quantity = int
 
+    def __init__(self):
+        super().__init__()
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.name}, {self.description}, {self.price}, {self.quantity})"
+
+
+class Product(BaseProduct, PrintMixin):
     def __init__(self, name, description, price, quantity):
-        self.name = name
+        super().__init__(name, description, price, quantity)
         self.__price = price
-        self.quantity = quantity
-        self.description = description
 
     @classmethod
     def new_product(cls, product_info):
@@ -68,6 +87,16 @@ class Category:
             f"Получен тип: {type(product).__name__}"
         )
 
+    def middle_price(self):
+        sum_price = 0
+        try:
+            for product in self.__products:
+                sum_price += product.price
+            result = sum_price / len(self.__products)
+            return result
+        except ZeroDivisionError:
+            return 0
+
 
 class Smartphone(Product):
     def __init__(
@@ -88,3 +117,42 @@ class LawnGrass(Product):
         self.country = country
         self.germination_period = germination_period
         self.color = color
+
+
+def test_middle_price_with_products():
+    product1 = Product("Товар1", "Описание1", 100.0, 5)
+    product2 = Product("Товар2", "Описание2", 200.0, 3)
+    product3 = Product("Товар3", "Описание3", 150.0, 2)
+    category = Category("Электроника", "Техника", [product1, product2, product3])
+
+    expected = (100.0 + 200.0 + 150.0) / 3
+    assert category.middle_price() == expected
+
+
+def test_middle_price_single_product():
+    product = Product("Товар", "Описание", 100.0, 5)
+    category = Category("Категория", "Описание", [product])
+    assert category.middle_price() == 100.0
+
+
+def test_middle_price_empty_category():
+    category = Category("Пустая", "Нет товаров", [])
+    assert category.middle_price() == 0
+
+
+def test_middle_price_with_inherited_products():
+    smartphone = Smartphone(
+        "Samsung", "Смартфон", 800.0, 3, "высокая", "S23", "128GB", "черный"
+    )
+    grass = LawnGrass("Трава", "Газонная", 50.0, 100, "Россия", "14 дней", "зеленый")
+    category = Category("Смесь", "Разные товары", [smartphone, grass])
+    expected = (800.0 + 50.0) / 2
+    assert category.middle_price() == expected
+
+
+def test_middle_price_no_side_effects():
+    product = Product("Товар", "Описание", 100.0, 5)
+    category = Category("Категория", "Описание", [product])
+    original_products = category._Category__products[:]  # копия списка
+    category.middle_price()
+    assert category._Category__products == original_products
